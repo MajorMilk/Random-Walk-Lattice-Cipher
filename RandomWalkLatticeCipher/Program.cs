@@ -17,7 +17,7 @@ public class RandomWalkLatticeCipher
     }
 
     // Core random walk generator
-    private int[] GenerateWalkStep(byte[] seed, int index, int previousStepSum)
+    private int[] GenerateWalkStep(byte[] seed, int index, int previousStepSum, out byte[] newSeed)
     {
         using (var hmac = new HMACSHA256(seed))
         {
@@ -37,6 +37,7 @@ public class RandomWalkLatticeCipher
             {
                 step[i] = (hash[i] % (2 * _stepRange + 1)) - _stepRange; // [-stepRange, stepRange]
             }
+            newSeed = hmac.ComputeHash(hash)
             return step;
         }
     }
@@ -49,7 +50,7 @@ public class RandomWalkLatticeCipher
 
         for (int i = 0; i < message.Length; i++)
         {
-            int[] step = GenerateWalkStep(seed, i, previousStepSum);
+            int[] step = GenerateWalkStep(seed, i, previousStepSum, out seed);
             int stepSum = step.Sum();
             
             ciphertext[i] = (char)((message[i] + stepSum) ^ stepSum);
@@ -68,7 +69,7 @@ public class RandomWalkLatticeCipher
 
         for (int i = 0; i < ciphertext.Length; i++)
         {
-            int[] step = GenerateWalkStep(seed, i, previousStepSum);
+            int[] step = GenerateWalkStep(seed, i, previousStepSum, out seed);
             int stepSum = step.Sum();
             
             plaintext[i] = (char)((ciphertext[i] ^ stepSum) - stepSum);
