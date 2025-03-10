@@ -37,7 +37,8 @@ public class RandomWalkLatticeCipher
             {
                 step[i] = (hash[i] % (2 * _stepRange + 1)) - _stepRange; // [-stepRange, stepRange]
             }
-            newSeed = hmac.ComputeHash(hash)
+
+            newSeed = hmac.ComputeHash(hash);
             return step;
         }
     }
